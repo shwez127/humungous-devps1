@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "humongous-healthcare-api"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "humongous-healthcare-api"
+  template:
+    metadata:
+      labels:
+        app: "humongous-healthcare-api"
+    spec:
+      containers:
+      - name: "humongous-healthcare-api"
+        image: "humongusacrshwe.azurecr.io/humongous-healthcare-api:0.0.0"
+        env:
+        - name: cosmosdb-account
+          valueFrom: 
+            secretKeyRef:
+              name: cosmosdb
+              key: cosmosdb-account
+              optional: false
+        - name: cosmosdb-key
+          valueFrom:
+            secretKeyRef:
+              name: cosmosdb
+              key: cosmosdb-key
+              optional: false
+        - name: CosmosDb__DatabaseName
+          value: newdb
+        - name: CosmosDb__ContainerName
+          value: health
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: http
+            containerPort: 80
+            protocol: TCP
+        # livenessProbe:
+        #   httpGet:
+        #     path: /HealthCheck
+        #     port: http
+        # readinessProbe:
+        #   httpGet:
+        #     path: /HealthCheck
+        #     port: http
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 200m
+            memory: 256Mi
